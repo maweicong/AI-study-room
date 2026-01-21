@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mwc.exam.mapper.QuestionMapper">
+    <resultMap id="questionMap" type="com.mwc.exam.entity.Question">
+           <id property="id" column="id"/>
+        <!--省略一些字段由mybatis-plus帮我完成自动映射-->
+        <association property="answer" javaType="com.mwc.exam.entity.QuestionAnswer" >
+            <id property="id" column="qa_id"/>
+            <result property="createTime" column="qa_create_time"/>
+            <result property="updateTime" column="qa_update_time"/>
+            <result property="questionId" column="id"/>
+            <result property="answer" column="answer"/>
+            <result property="keywords" column="keywords"/>
+        </association>
+        <collection property="choices" ofType="com.mwc.exam.entity.QuestionChoice"
+                    column="id" select="com.mwc.exam.mapper.QuestionChoiceMapper.selectListByQuestionId" />
+    </resultMap>
+    <select id="selectQuestions" resultMap="questionMap">
+        select
+        qs.*,
+        qa.create_time qa_create_time,
+        qa.update_time qa_update_time,
+        qa.id qa_id,
+        qa.answer,
+        qa.keywords
+        from questions qs join question_answers qa on qs.id=qa.question_id
+        where qs.is_deleted=0 and qa.is_deleted=0
+        <if test="queryVo.categoryId != null ">
+            and qs.category_id=#{queryVo.categoryId}
+        </if>
+        <if test="queryVo.difficulty != null and queryVo.difficulty!= ''">
+            and qs.difficulty=#{queryVo.difficulty}
+        </if>
+        <if test="queryVo.type != null and queryVo.type!=''">
+            and qs.type= #{queryVo.type}
+        </if>
+        <if test="queryVo.keyword != null and queryVo.keyword!=''">
+            and qs.title like concat('%',#{queryVo.keyword},'%')
+        </if>
+        order by qs.create_time desc
+    </select>
+    <!--获取试卷题目-->
+    <resultMap id="questionPaperMap" type="com.mwc.exam.entity.Question">
+        <id property="id" column="id"/>
+        <association property="answer" javaType="com.mwc.exam.entity.QuestionAnswer" >
+            <id property="id" column="qas_id"/>
+            <result property="questionId" column="qas.question_id"/>
+            <result property="createTime" column="qas_create_time"/>
+            <result property="updateTime" column="qas_update_time"/>
+        </association>
+        <collection property="choices" ofType="com.mwc.exam.entity.QuestionChoice" notNullColumn="qcs_id">
+            <id property="id" column="qcs_id"/>
+            <result property="questionId" column="qcs.question_id"/>
+            <result property="createTime" column="qcs._create_time"/>
+            <result property="updateTime" column="qcs_update_time"/>
+
+        </collection>
+
+    </resultMap>
+    <select id="getPaperQuestions" resultMap="questionPaperMap">
+        select
+                qs.*,
+                qas.id qas_id,
+                qas.question_id,
+                qas.answer,
+                qas.keywords,
+                qas.create_time qas_create_time,
+                qas.update_time qas_update_time,
+                qcs.id qcs_id,
+                qcs.question_id qcs_question_id,
+                qcs.content,
+                qcs.is_correct,
+                qcs.sort,
+                qcs.create_time qcs_create_time,
+                qcs.update_time qcs_update_time,
+                pq.score  paper_score
+        from paper_question pq
+        join questions qs on pq.question_id = qs.id
+        join question_answers qas on qs.id = qas.question_id
+        left join question_choices qcs on qs.id = qcs.question_id and qcs.is_deleted  = 0
+        where pq.is_deleted = 0 and qs.is_deleted = 0 and qas.is_deleted = 0 and pq.paper_id = #{paperId} order by qcs.sort asc ;
+    </select>
+</mapper>

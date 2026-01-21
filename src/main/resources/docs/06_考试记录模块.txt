@@ -1,0 +1,20 @@
+分页查询考试记录 GET /api/exam-records/list - 支持多条件筛选的分页查询，是后台管理页面的主要数据来源。
+分页查询考试记录接口（ GET /api/exam-records/list）
+此接口是后台管理系统的核心，提供了强大的数据筛选和分页能力。
+ 接口分析
+接口地址:/api/exam-records/list
+请求方式:GET
+请求参数:
+参数名	说明	数据类型	是否必须
+page	当前页码，从1开始	Integer	否
+size	每页显示数量	Integer	否
+studentName	按学生姓名模糊查询	String	否
+status	按考试状态筛选(0/1/2)	Integer	否
+startDate	按开始日期筛选(yyyy-MM-dd)	String	否
+endDate	按结束日期筛选(yyyy-MM-dd)	String	否
+响应参数: 返回一个包含ExamRecord列表和分页信息的Page对象。
+
+
+获取考试记录详情 GET /api/exam-records/{id} - 查看某次考试的完整信息，包括试卷快照和答题详情。
+删除考试记录 DELETE /api/exam-records/{id} - 从系统中移除指定的考试记录。
+获取考试排行榜 GET /api/exam-records/ranking - 获取按分数和用时排序的成绩排行榜。

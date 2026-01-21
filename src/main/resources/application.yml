@@ -1,0 +1,57 @@
+server:
+  port: 8080
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://192.168.100.128:3307/exam_system_new?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=GMT%2b8
+    username: root
+    password: 123456
+    hikari:
+      connection-test-query: SELECT 1 # 自动检测连接
+      connection-timeout: 60000 #数据库连接超时时间,默认30秒
+      idle-timeout: 500000 #空闲连接存活最大时间，默认600000（10分钟）
+      max-lifetime: 540000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+      maximum-pool-size: 12 #连接池最大连接数，默认是10
+      minimum-idle: 10 #最小空闲连接数量
+      pool-name: SPHHikariPool # 连接池名称
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  data:
+    redis:
+      host: 192.168.100.128
+      port: 6379
+      password: 123456
+
+#用于打印框架生成的sql语句，便于调试
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    auto-mapping-behavior: full
+minio:
+  endpoint: http://192.168.100.128:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: exam-system
+logging:
+  level:
+    root: info
+# AI 服务配置
+kimi:
+  api:
+    url: https://api.moonshot.cn/v1/chat/completions
+    api-key: sk-C4MILIEmWTsTiKHLV2wy3ezdCaGtJnoerWpq36wCUNL9ZBh0  # 从环境变量获取，或使用默认值
+    model: moonshot-v1-128k  # 使用8k上下文模型进行判卷
+    max-tokens: 2000  # 最大生成token数
+    temperature: 0.3  # 较低的temperature确保判卷结果稳定
+
+
+
